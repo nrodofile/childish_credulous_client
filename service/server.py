@@ -10,6 +10,9 @@ import SocketServer
 # replace my_service with your service
 from my_service import my_service
 
+HOST = "10.0.3.2"   # Change this to your server's IP address
+PORT = 10222
+
 
 class MyTCPHandler(SocketServer.BaseRequestHandler):
 
@@ -22,21 +25,27 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
     """
 
     def handle(self):
-        # self.request is the TCP socket connected to the client
-        request = self.request.recv(1024).strip()
+        print "Connection with", self.client_address[0]
+        while True:
+            # self.request is the TCP socket connected to the client
+            request = self.request.recv(1024).strip()
 
-        #process Data
-        print "{} Request from:".format(self.client_address[0]), request
+            #   if the client has closed connection break the while loop
+            if not request:
+                break
 
-        #Process Response
-        response = my_service(request)
+            #   Process Response using your own function
+            response = my_service(request)
 
-        #Send back response
-        self.request.sendall(response)
+            #   Send back response
+            self.request.sendall(response)
+
+        print "Closing connection with", self.client_address[0]
 
 if __name__ == "__main__":
-    HOST = "10.0.3.2" # Your server's IP address
-    PORT = 10222
+    print "Starting Service..."
+    print HOST, "Waiting for Client to connect to port", PORT
+    print "Stop Server by pressing Ctrl-C"
 
     # Create the server, binding to localhost on port 10222
     server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
@@ -46,4 +55,5 @@ if __name__ == "__main__":
     try:
         server.serve_forever()
     except KeyboardInterrupt:
+        print "Server is Stopping!"
         server.shutdown()
