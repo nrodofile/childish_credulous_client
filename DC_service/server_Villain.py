@@ -4,17 +4,18 @@ __author__ = 'Nicholas Rodofile'
 More information can be found here:
 https://docs.python.org/2/library/socketserver.html
 """
-import threading
+
 import SocketServer
+import threading
+
+
+villains = [ "Joker", "Lex Luthor", "Cheetah", "Captain Boomerang", "Black Manta", "Sinestro"]
 
 # replace my_service with your service
-from my_service import my_service
-HOST = "172.19.1.114"   # Change this to your server's IP address
-PORT = 20000
-GROUP_NAME = "GROUP"    # Change this to your Group name
-SERVICE_NAME = "SERVICE" # Change this to your service name
-WELCOME_BANNER = " ** Welcome to " + SERVICE_NAME + " Service ** \n" + \
-                 " ** By Group " + GROUP_NAME + "\n"
+from villians_list import *
+
+HOST = "172.19.26.243"   # Change this to your server's IP address
+PORT = 40000
 
 
 class MyTCPHandler(SocketServer.BaseRequestHandler):
@@ -29,11 +30,14 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 
     def handle(self):
         print "Connection with", self.client_address[0]
-        self.request.sendall(WELCOME_BANNER)
+        self.request.sendall("***  - DC Villain Look up -    ***\n")
+        for v in villains:
+            self.request.sendall("     *  " + v + "\n")
+        self.request.sendall("      Press Ctrl - C to exit\n")
+        self.request.sendall("******************************\n")
         while True:
             # self.request is the TCP socket connected to the client
             request = self.request.recv(1024).strip()
-
             #   if the client has closed connection break the while loop
             if not request:
                 break
@@ -46,12 +50,12 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 
         print "Closing connection with", self.client_address[0]
 
-
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     pass
 
 if __name__ == "__main__":
     # Port 0 means to select an arbitrary unused port
+
     server = ThreadedTCPServer((HOST, PORT), MyTCPHandler)
     ip, port = server.server_address
 

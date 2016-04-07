@@ -4,17 +4,15 @@ __author__ = 'Nicholas Rodofile'
 More information can be found here:
 https://docs.python.org/2/library/socketserver.html
 """
+
 import threading
 import SocketServer
 
 # replace my_service with your service
 from my_service import my_service
+
 HOST = "172.19.1.114"   # Change this to your server's IP address
-PORT = 20000
-GROUP_NAME = "GROUP"    # Change this to your Group name
-SERVICE_NAME = "SERVICE" # Change this to your service name
-WELCOME_BANNER = " ** Welcome to " + SERVICE_NAME + " Service ** \n" + \
-                 " ** By Group " + GROUP_NAME + "\n"
+PORT = 20001
 
 
 class MyTCPHandler(SocketServer.BaseRequestHandler):
@@ -29,7 +27,6 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
 
     def handle(self):
         print "Connection with", self.client_address[0]
-        self.request.sendall(WELCOME_BANNER)
         while True:
             # self.request is the TCP socket connected to the client
             request = self.request.recv(1024).strip()
@@ -45,7 +42,6 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
             self.request.sendall(response)
 
         print "Closing connection with", self.client_address[0]
-
 
 class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     pass
